@@ -87,9 +87,6 @@
       }
     }
 
-
-
-
     .container {
       position: relative;
       max-width: 780px;
@@ -188,6 +185,11 @@
       flex-wrap: wrap;
     }
 
+    .disclaimer-link {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
     .spinner {
       width: 16px;
       height: 16px;
@@ -205,26 +207,10 @@
       }
     }
 
-    #disclaimer-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #2c261e;
-      color: var(--muted);
-      font-family: inherit;
-      font-size: 0.85rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--muted);
-      border-radius: 5px;
-      cursor: pointer;
-      z-index: 999;
-      box-shadow: 0 0 5px rgba(255, 180, 70, 0.3);
-    }
-
     #disclaimer-box {
       display: none;
       position: fixed;
-      bottom: 70px;
+      bottom: 80px;
       right: 20px;
       width: 280px;
       background: var(--panel);
@@ -280,23 +266,21 @@
 
   <div class="container">
     <h1>Bias and Fact Checker</h1>
-    <!--<div class="subtitle">No fluff, just facts.</div> -->
-
     <textarea id="inputText" placeholder="> Paste claim or text here..."></textarea>
     <button id="analyzeBtn" class="btn" onclick="analyzeText()">Analyze</button>
-
     <div id="result"></div>
 
     <div class="footer">
-      <span>v1.0 Prototype · Built by <a href="https://www.linkedin.com/in/jacksonngreer/" target="_blank"
-          class="underline hover:text-white transition-colors duration-150">Jackson</a></span>
-      <span>CTRL/⌘ + ENTER to run</span>
+      <div>CTRL/⌘ + ENTER to run · v1.0 Prototype</div>
+      <div>
+        Built by <a href="https://www.linkedin.com/in/jacksonngreer/" target="_blank"
+          class="underline hover:text-white">Jackson</a> ·
+        <span id="disclaimer-toggle" class="disclaimer-link hover:text-white">Disclaimer</span>
+      </div>
     </div>
   </div>
 
-
   <!-- Disclaimer -->
-  <div id="disclaimer-toggle">Disclaimer</div>
   <div id="disclaimer-box">
     <div class="disclaimer-header">
       <strong>Disclaimer</strong>
@@ -317,6 +301,7 @@
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 10000) + 'px';
     }
+
     window.addEventListener('load', () => autoGrow(inputEl));
     inputEl.addEventListener('input', () => autoGrow(inputEl));
     inputEl.addEventListener("keydown", (e) => {
@@ -331,37 +316,35 @@
       }
     }
 
-async function analyzeText() {
-  const text = inputEl.value.trim();
-  if (!text) {
-    resultEl.style.display = "block";
-    resultEl.textContent = "No input detected. Paste text to analyze.";
-    return;
-  }
-  setLoading(true);
+    async function analyzeText() {
+      const text = inputEl.value.trim();
+      if (!text) {
+        resultEl.style.display = "block";
+        resultEl.textContent = "No input detected. Paste text to analyze.";
+        return;
+      }
+      setLoading(true);
 
-  try {
-    const res = await fetch("https://qed-backend.onrender.com/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
+      try {
+        const res = await fetch("https://qed-backend.onrender.com/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
 
-    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-    const data = await res.json();
-    resultEl.style.display = "block";
-    resultEl.textContent = data.result || "No result returned.";
-  } catch (err) {
-    console.error(err);
-    resultEl.style.display = "block";
-    resultEl.textContent = "Connection error. Is the backend running?";
-  } finally {
-    // Always runs after try/catch so button doesn't go stale
-    setLoading(false);
-    analyzeBtn.disabled = false; // Re-enable the button
-  }
-}
-
+        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+        const data = await res.json();
+        resultEl.style.display = "block";
+        resultEl.textContent = data.result || "No result returned.";
+      } catch (err) {
+        console.error(err);
+        resultEl.style.display = "block";
+        resultEl.textContent = "Connection error. Is the backend running?";
+      } finally {
+        setLoading(false);
+        analyzeBtn.disabled = false;
+      }
+    }
 
     // Disclaimer toggle
     const toggle = document.getElementById("disclaimer-toggle");
@@ -369,6 +352,7 @@ async function analyzeText() {
     toggle.addEventListener("click", () => {
       box.style.display = (box.style.display === "block") ? "none" : "block";
     });
+
     function hideDisclaimer() {
       box.style.display = "none";
     }
