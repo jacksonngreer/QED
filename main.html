@@ -331,34 +331,37 @@
       }
     }
 
-    async function analyzeText() {
-      const text = inputEl.value.trim();
-      if (!text) {
-        resultEl.style.display = "block";
-        resultEl.textContent = "No input detected. Paste text to analyze.";
-        return;
-      }
-      setLoading(true);
+async function analyzeText() {
+  const text = inputEl.value.trim();
+  if (!text) {
+    resultEl.style.display = "block";
+    resultEl.textContent = "No input detected. Paste text to analyze.";
+    return;
+  }
+  setLoading(true);
 
-try {
-  const res = await fetch("https://qed-backend.onrender.com/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-  });
+  try {
+    const res = await fetch("https://qed-backend.onrender.com/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
 
-  const raw = await res.text();
-  console.log("Raw response:", raw);
-
-  if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-  const data = JSON.parse(raw);
-  resultEl.textContent = data.result || "No result returned.";
-} catch (err) {
-  console.error("Error during fetch:", err);
-  resultEl.textContent = "Connection error. Is the backend running?";
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+    const data = await res.json();
+    resultEl.style.display = "block";
+    resultEl.textContent = data.result || "No result returned.";
+  } catch (err) {
+    console.error(err);
+    resultEl.style.display = "block";
+    resultEl.textContent = "Connection error. Is the backend running?";
+  } finally {
+    // Always runs after try/catch so button doesn't go stale
+    setLoading(false);
+    analyzeBtn.disabled = false; // Re-enable the button
+  }
 }
 
-    }
 
     // Disclaimer toggle
     const toggle = document.getElementById("disclaimer-toggle");
