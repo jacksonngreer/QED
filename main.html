@@ -341,7 +341,7 @@
       setLoading(true);
 
       try {
-        const res = await fetch("https://qed-backend.onrender.com", {
+        const res = await fetch("https://qed-backend.onrender.com/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text })
