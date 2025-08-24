@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QED · v1.0</title>
+
+  <!-- Tailwind -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Vintage console font -->
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #12100e;
+      --panel: rgba(20, 18, 15, 0.92);
+      --accent: #ffb347;
+      --text: #f8e4c9;
+      --muted: #c2b29f;
+      --border: #2a241d;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      font-family: 'Courier Prime', monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem 3rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.08) 0,
+          rgba(0, 0, 0, 0.08) 2px,
+          transparent 3px,
+          transparent 4px);
+      pointer-events: none;
+    }
+
+    .background-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      font-size: 48vw;
+      font-weight: bold;
+      color: var(--accent);
+      opacity: 0.02;
+      letter-spacing: 3vw;
+      user-select: none;
+      pointer-events: none;
+      z-index: -2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      mix-blend-mode: lighten;
+      text-shadow:
+        0 0 8px rgba(255, 180, 70, 0.15),
+        0 0 18px rgba(255, 180, 70, 0.07);
+      animation: crtDistort 3s infinite ease-in-out;
+    }
+
+    @keyframes crtDistort {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.01) translateY(-1px);
+      }
+    }
+
+
+
+
+    .container {
+      position: relative;
+      max-width: 780px;
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2rem;
+      box-shadow: 0 0 12px rgba(255, 180, 70, 0.25), inset 0 0 10px rgba(0, 0, 0, 0.6);
+      text-align: left;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      text-shadow: 0 0 6px rgba(255, 180, 70, 0.4);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid #3a3228;
+      background: #1a1714;
+      color: var(--text);
+      font-size: 0.95rem;
+      resize: none;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.6);
+    }
+
+    textarea::placeholder {
+      color: #857560;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 6px rgba(255, 180, 70, 0.4);
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      background: #2c261e;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: bold;
+      font-family: inherit;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: 0 0 6px rgba(255, 180, 70, 0.3);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background: #3c342a;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #result {
+      display: none;
+      margin-top: 1rem;
+      background: #1b1814;
+      border: 1px solid #3a3228;
+      padding: 1rem;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      min-height: 80px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .footer {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 180, 70, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #disclaimer-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #2c261e;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--muted);
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 0 5px rgba(255, 180, 70, 0.3);
+    }
+
+    #disclaimer-box {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      width: 280px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      z-index: 999;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .disclaimer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: #1a1714;
+      color: var(--accent);
+    }
+
+    .disclaimer-header button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .disclaimer-body {
+      padding: 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1.25rem;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      textarea {
+        height: 140px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="background-watermark">QED</div>
+
+  <div class="container">
+    <h1>Bias and Fact Checker</h1>
+    <!--<div class="subtitle">No fluff, just facts.</div> -->
+
+    <textarea id="inputText" placeholder="> Paste claim or text here..."></textarea>
+    <button id="analyzeBtn" class="btn" onclick="analyzeText()">Analyze</button>
+
+    <div id="result"></div>
+
+    <div class="footer">
+      <span>v1.0 Prototype · Built by <a href="https://www.linkedin.com/in/jacksonngreer/" target="_blank"
+          class="underline hover:text-white transition-colors duration-150">Jackson</a></span>
+      <span>CTRL/⌘ + ENTER to run</span>
+    </div>
+  </div>
+
+
+  <!-- Disclaimer -->
+  <div id="disclaimer-toggle">Disclaimer</div>
+  <div id="disclaimer-box">
+    <div class="disclaimer-header">
+      <strong>Disclaimer</strong>
+      <button onclick="hideDisclaimer()">✕</button>
+    </div>
+    <div class="disclaimer-body">
+      This tool is powered by AI and may contain inaccuracies.<br>
+      Always verify with primary sources before relying on its output.
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById("inputText");
+    const resultEl = document.getElementById("result");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+
+    function autoGrow(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 10000) + 'px';
+    }
+    window.addEventListener('load', () => autoGrow(inputEl));
+    inputEl.addEventListener('input', () => autoGrow(inputEl));
+    inputEl.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") analyzeText();
+    });
+
+    function setLoading(isLoading) {
+      analyzeBtn.disabled = isLoading;
+      resultEl.style.display = "block";
+      if (isLoading) {
+        resultEl.innerHTML = '<span class="spinner"></span>Analyzing…';
+      }
+    }
+
+    async function analyzeText() {
+      const text = inputEl.value.trim();
+      if (!text) {
+        resultEl.style.display = "block";
+        resultEl.textContent = "No input detected. Paste text to analyze.";
+        return;
+      }
+      setLoading(true);
+
+      try {
+        const res = await fetch("http://localhost:8000/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
+        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+        const data = await res.json();
+        resultEl.style.display = "block";
+        resultEl.textContent = data.result || "No result returned.";
+      } catch (err) {
+        console.error(err);
+        resultEl.style.display = "block";
+        resultEl.textContent = "Connection error. Is the backend running?";
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Disclaimer toggle
+    const toggle = document.getElementById("disclaimer-toggle");
+    const box = document.getElementById("disclaimer-box");
+    toggle.addEventListener("click", () => {
+      box.style.display = (box.style.display === "block") ? "none" : "block";
+    });
+    function hideDisclaimer() {
+      box.style.display = "none";
+    }
+  </script>
+</body>
+
+</html>
