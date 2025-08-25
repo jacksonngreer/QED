@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QED · Welcome</title>
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS (optional, safe to keep) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
 
@@ -44,14 +44,15 @@
     h1 {
       font-size: 2.2rem;
       color: var(--accent);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       text-shadow: 0 0 6px rgba(255,180,70,0.4);
     }
 
     .tagline {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--muted);
-      margin-bottom: 2rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
     }
 
     .btn {
@@ -66,10 +67,7 @@
       box-shadow: 0 0 6px rgba(255,180,70,0.3);
       transition: background 0.2s, transform 0.1s;
     }
-    .btn:hover {
-      background: #3c342a;
-      transform: translateY(-1px);
-    }
+    .btn:hover { background: #3c342a; transform: translateY(-1px); }
 
     .footer {
       margin-top: 2rem;
@@ -81,9 +79,30 @@
 <body>
   <div class="landing-container">
     <h1>QED</h1>
-    <div class="tagline">So it is shown.</div>
+    <div class="tagline" id="quote-slot"></div>
+
     <a href="main.html" class="btn">Try Now</a>
     <div class="footer">v1.0 Prototype · Built by Jackson</div>
   </div>
+
+  <script>
+    // Quotes list — just strings now
+    const QUOTES = [
+      "Knowledge itself is power. — Francis Bacon",
+      "Dare to know. (Sapere aude) — Immanuel Kant",
+      "Facts do not cease to exist because they are ignored. — Aldous Huxley",
+      "Knowledge is our ultimate good. - Socrates",
+      "Where there is shouting, there is no true knowledge. - Leonardo da Vinci",
+      "The unexamined life is not worth living. — Socrates",
+      "Doubt is the origin of wisdom. — René Descartes",
+      "Curiosity is the engine of achievement. — Ken Robinson",
+      "Truth fears no trial. — Thomas Fuller",
+      "Truth is powerful and it prevails. — Sojourner Truth"
+    ];
+
+    // Pick one at random each page load
+    const chosen = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    document.getElementById('quote-slot').textContent = chosen;
+  </script>
 </body>
 </html>
